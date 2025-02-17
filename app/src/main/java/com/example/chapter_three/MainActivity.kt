@@ -38,9 +38,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         Log.d(TAG, "onCreate(Bundle) called")
-        Log.d("numCorrect", "value: $numCorrect")
-        Log.d("currentIndex", "value: $currentIndex")
-
 
         binding.trueButton.setOnClickListener {
             binding.trueButton.isEnabled=false
