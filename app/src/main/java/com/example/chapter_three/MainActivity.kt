@@ -15,8 +15,6 @@ private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var trueButton : Button
-    private lateinit var falseButton : Button
 
     private lateinit var binding:ActivityMainBinding
 
@@ -40,27 +38,44 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         Log.d(TAG, "onCreate(Bundle) called")
+        Log.d("numCorrect", "value: $numCorrect")
+        Log.d("currentIndex", "value: $currentIndex")
 
-        binding.nextButton.setEnabled(false)
-        binding.prevButton.setEnabled(false)
 
         binding.trueButton.setOnClickListener {
-            binding.nextButton.isEnabled = (true)
-            binding.prevButton.isEnabled = (true)
-
-            enableButtons()
+            binding.trueButton.isEnabled=false
+            binding.falseButton.isEnabled=false
             checkAnswer(userAnswer = true)
 
         }
 
         binding.falseButton.setOnClickListener {
-            binding.nextButton.isEnabled = (true)
-            binding.prevButton.isEnabled = (true)
-
-            enableButtons()
+            binding.trueButton.isEnabled=false
+            binding.falseButton.isEnabled=false
             checkAnswer(userAnswer = false)
         }
         updateQuestion()
+
+        binding.questionTextView.setOnClickListener {
+            binding.trueButton.isEnabled=true
+            binding.falseButton.isEnabled=true
+            currentIndex = (currentIndex + 1) % questionBank.size
+            updateQuestion()
+        }
+
+        binding.nextButton.setOnClickListener {
+            binding.trueButton.isEnabled=true
+            binding.falseButton.isEnabled=true
+            currentIndex = (currentIndex + 1) % questionBank.size
+            updateQuestion()
+        }
+
+        binding.prevButton.setOnClickListener {
+            binding.trueButton.isEnabled=true
+            binding.falseButton.isEnabled=true
+            currentIndex = (currentIndex - 1) % questionBank.size
+            updateQuestion()
+        }
 
     }
 
@@ -89,40 +104,6 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy() called")
     }
 
-    private fun enableButtons(){
-
-        binding.questionTextView.setOnClickListener {
-
-            binding.nextButton.isEnabled = (false)
-            binding.prevButton.isEnabled = (false)
-
-            currentIndex = (currentIndex + 1) % questionBank.size
-            updateQuestion()
-        }
-
-        binding.nextButton.setOnClickListener {
-
-            binding.nextButton.isEnabled = (false)
-            binding.prevButton.isEnabled = (false)
-
-            currentIndex = (currentIndex + 1) % questionBank.size
-            //val questionTextResId = questionBank[currentIndex].textResID
-            //binding.questionTextView.setText(questionTextResId)
-            updateQuestion()
-        }
-
-        binding.prevButton.setOnClickListener {
-
-            binding.nextButton.isEnabled = (false)
-            binding.prevButton.isEnabled = (false)
-
-            currentIndex = (currentIndex - 1) % questionBank.size
-            //val questionTextResId = questionBank[currentIndex].textResID
-            //binding.questionTextView.setText(questionTextResId)
-            updateQuestion()
-        }
-
-    }
 
     private fun updateQuestion(){
         val questionTextResId = questionBank[currentIndex].textResID
@@ -133,12 +114,12 @@ class MainActivity : AppCompatActivity() {
         val correctAnswer = questionBank[currentIndex].answer
 
         if (userAnswer == correctAnswer) {
-            numCorrect = (numCorrect + 1)
+            numCorrect++
         }
-        if (currentIndex == questionBank.size){
+        if (currentIndex == questionBank.size - 1){
             showCorrect()
         }
-        /* else {
+        else {
             val messageResID = if (userAnswer == correctAnswer) {
                 R.string.correct_toast
             } else {
@@ -151,21 +132,23 @@ class MainActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT,
             )
                 .show()
-        } */
         }
 
+        }
 
     private fun showCorrect(){
         val score = (numCorrect.toDouble() / questionBank.size) * 100
-        val percentageScore = String.format(Locale.getDefault(),"%.1f%", score)
+        val percentageScore = String.format(Locale.getDefault(), "%.1f%%", score)
 
         Toast.makeText(
             this,
-            "That is  score: $percentageScore",
+            "Your score: $percentageScore",
             Toast.LENGTH_LONG
         )
             .show()
 
+        numCorrect = 0
+        currentIndex = 0
 
     }
 
