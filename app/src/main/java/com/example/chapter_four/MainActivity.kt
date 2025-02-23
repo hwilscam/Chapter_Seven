@@ -1,13 +1,10 @@
-package com.example.chapter_three
+package com.example.chapter_four
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.chapter_three.databinding.ActivityMainBinding
+import com.example.chapter_four.databinding.ActivityMainBinding
 import java.util.Locale
 
 
