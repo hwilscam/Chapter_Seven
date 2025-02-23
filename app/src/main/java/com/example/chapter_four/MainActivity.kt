@@ -28,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate(Bundle) called")
         Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
 
+        updateQuestion()
+
         binding.trueButton.setOnClickListener {
             binding.trueButton.isEnabled=false
             binding.falseButton.isEnabled=false
@@ -40,7 +42,6 @@ class MainActivity : AppCompatActivity() {
             binding.falseButton.isEnabled=false
             checkAnswer(userAnswer = false)
         }
-        updateQuestion()
 
         binding.questionTextView.setOnClickListener {
             binding.trueButton.isEnabled=true
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.nextButton.setOnClickListener {
+
             binding.trueButton.isEnabled=true
             binding.falseButton.isEnabled=true
             // currentIndex = (currentIndex + 1) % questionBank.size
@@ -62,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             binding.trueButton.isEnabled=true
             binding.falseButton.isEnabled=true
             // currentIndex = (currentIndex - 1) % questionBank.size
-            quizViewModel.moveToNext()
+            quizViewModel.moveToPrevious()
             updateQuestion()
         }
 
@@ -96,37 +98,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateQuestion(){
         // val questionTextResId = questionBank[currentIndex].textResID
+        Log.d(TAG, "Current Index: ${quizViewModel.currentIndex}")
         val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
     }
     private fun checkAnswer(userAnswer: Boolean){
-        // val correctAnswer = questionBank[currentIndex].answer
-        val correctAnswer = quizViewModel.currentQuestionAnswer
         val currentIndex = quizViewModel.currentIndex
-        val questionBank = quizViewModel.questionBank
+        val correctAnswer = quizViewModel.currentQuestionAnswer
 
-        if (userAnswer == correctAnswer) {
+        //val correctAnswer = quizViewModel.currentQuestionAnswer
+
+        val messageResID = if (userAnswer == correctAnswer) {
             quizViewModel.correctCounter()
-
+            R.string.correct_toast
+        } else {
+            R.string.incorrect_toast
         }
-        if (currentIndex == questionBank.size - 1){
+
+        Toast.makeText(this, messageResID, Toast.LENGTH_SHORT).show()
+
+        if (currentIndex == quizViewModel.questionBank.size - 1) {
             showCorrect()
         }
-        else {
-            val messageResID = if (userAnswer == correctAnswer) {
-                R.string.correct_toast
-            } else {
-                R.string.incorrect_toast
-            }
-
-            Toast.makeText(
-                this,
-                messageResID,
-                Toast.LENGTH_SHORT,
-            )
-                .show()
-        }
-
     }
 
     private fun showCorrect(){

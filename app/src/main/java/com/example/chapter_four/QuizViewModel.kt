@@ -2,13 +2,16 @@ package com.example.chapter_four
 
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import java.util.Locale
 
 
 private const val TAG = "QuizViewModel"
+const val CURRENT_INDEX_KEY = "CURRENT_INDEX_KEY"
+const val NUM_CORRECT_KEY = "NUM_CORRECT_KEY"
 
-class QuizViewModel:ViewModel() {
+class QuizViewModel(private val savedStateHandle: SavedStateHandle):ViewModel() {
 
     /*init {
 
@@ -21,7 +24,7 @@ class QuizViewModel:ViewModel() {
     }
 
      */
-   val questionBank = listOf(
+    val questionBank = listOf(
 
         question(R.string.question_australia, true),
         question(R.string.question_oceans, true),
@@ -31,8 +34,14 @@ class QuizViewModel:ViewModel() {
         question(R.string.question_asia, true)
     )
 
-     var currentIndex = 0
-     var numCorrect = 0
+    var currentIndex
+        get() = savedStateHandle.get(CURRENT_INDEX_KEY)?: 0
+        set(value) = savedStateHandle.set(CURRENT_INDEX_KEY, value)
+
+    var numCorrect
+        get() = savedStateHandle.get(NUM_CORRECT_KEY)?: 0
+        set(value) = savedStateHandle.set(NUM_CORRECT_KEY, value)
+
 
     val currentQuestionAnswer:Boolean
         get()= questionBank[currentIndex].answer
@@ -40,9 +49,15 @@ class QuizViewModel:ViewModel() {
     val currentQuestionText: Int
         get() = questionBank[currentIndex].textResID
 
-    fun moveToNext(){
+    fun moveToNext() {
 
         currentIndex = (currentIndex + 1) % questionBank.size
+
+    }
+
+    fun moveToPrevious(){
+
+        currentIndex = (currentIndex - 1) % questionBank.size
 
     }
 
