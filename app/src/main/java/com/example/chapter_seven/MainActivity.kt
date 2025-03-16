@@ -1,11 +1,13 @@
-package com.example.chapter_four
+package com.example.chapter_seven
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.chapter_four.databinding.ActivityMainBinding
+import com.example.chapter_seven.databinding.ActivityMainBinding
 import java.util.Locale
 
 
@@ -16,8 +18,14 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding:ActivityMainBinding
     private val quizViewModel: QuizViewModel by viewModels()
-
-
+    private val cheatLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            quizViewModel.isCheater =
+                result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+    }
+}
     // private var numCorrect = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,18 +63,31 @@ class MainActivity : AppCompatActivity() {
 
             binding.trueButton.isEnabled=true
             binding.falseButton.isEnabled=true
+            quizViewModel.isCheater=false
+
             // currentIndex = (currentIndex + 1) % questionBank.size
             quizViewModel.moveToNext()
             updateQuestion()
         }
 
-        binding.prevButton.setOnClickListener {
+        binding.cheatButton.setOnClickListener {
+            // start Cheat Activity
+           // val intent = Intent(this,CheatActivity::class.java)
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+
+            // startActivity(intent)
+            cheatLauncher.launch(intent)
+
+        }
+
+        /** binding.prevButton.setOnClickListener {
             binding.trueButton.isEnabled=true
             binding.falseButton.isEnabled=true
             // currentIndex = (currentIndex - 1) % questionBank.size
             quizViewModel.moveToPrevious()
             updateQuestion()
-        }
+        } **/
 
     }
 
@@ -108,14 +129,20 @@ class MainActivity : AppCompatActivity() {
 
         //val correctAnswer = quizViewModel.currentQuestionAnswer
 
-        val messageResID = if (userAnswer == correctAnswer) {
+        /**val messageResID = if (userAnswer == correctAnswer) {
             quizViewModel.correctCounter()
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
+        }**/
+
+        val messageResId = when {
+            quizViewModel.isCheater -> R.string.judgement_toast
+            userAnswer == correctAnswer -> R.string.correct_toast
+            else -> R.string.incorrect_toast
         }
 
-        Toast.makeText(this, messageResID, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
 
         if (currentIndex == quizViewModel.questionBank.size - 1) {
             showCorrect()
